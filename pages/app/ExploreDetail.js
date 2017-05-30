@@ -3,6 +3,7 @@ import withRedux from 'next-redux-wrapper';
 import { initStore } from 'store';
 import classNames from 'classnames';
 import { getDataset, resetDataset, getSimilarDatasets, toggleLayerShown } from 'redactions/exploreDetail';
+import updateLayersShown from 'selectors/explore/layersShownExploreDetail';
 
 // Components
 import Title from 'components/ui/Title';
@@ -34,6 +35,11 @@ const mapConfig = {
 
 class ExploreDetail extends React.Component {
 
+  static async getInitialProps({ query }) {
+    const datasetID = query.id;
+    return { datasetID };
+  }
+
   constructor(props) {
     super(props);
 
@@ -47,19 +53,23 @@ class ExploreDetail extends React.Component {
     };
 
     // DatasetService
-    this.datasetService = new DatasetService(this.props.params.id, {
-      apiURL: 'https://api.resourcewatch.org/v1'
+    this.datasetService = new DatasetService(this.props.datasetID, {
+      apiURL: process.env.WRI_API_URL
     });
+
+    debugger;
 
     // BINDINGS
     this.triggerOpenLayer = this.triggerOpenLayer.bind(this);
   }
 
   componentWillMount() {
-    this.props.getDataset(this.props.params.id);
+    this.props.getDataset(this.props.datasetID);
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log('componentWillReceiveProps');
+    debugger;
     if (this.props.params.id !== nextProps.params.id) {
       this.props.resetDataset();
       this.setState({

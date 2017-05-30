@@ -1,3 +1,5 @@
+import 'isomorphic-fetch';
+
 /**
  * CONSTANTS
 */
@@ -110,9 +112,9 @@ export default function (state = initialState, action) {
 */
 export function getDataset(datasetId) {
   return (dispatch) => {
-    console.info(datasetId);
     // Waiting for fetch from server -> Dispatch loading
     dispatch({ type: GET_DATASET_LOADING });
+
     // TODO: remove the date now
     fetch(new Request(`${process.env.API_URL}/dataset/${datasetId}?application=rw&includes=widget,layer,metadata,vocabulary&page[size]=${Date.now() / 100000}`))
       .then((response) => {
