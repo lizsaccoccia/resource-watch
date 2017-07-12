@@ -270,7 +270,11 @@ class ColumnBox extends React.Component {
     const { orderBy } = widgetEditor;
 
     const orderType = orderBy ? orderBy.orderType : null;
-    const iconName = (type.toLowerCase() === 'string') ? 'icon-type' : 'icon-hash';
+    let typeSt = type.toLowerCase();
+    if (type.startsWith('esriFieldType')) {
+      typeSt = type.replace('esriFieldType', '').toLowerCase();
+    }
+    const iconName = (typeSt === 'string') ? 'icon-type' : 'icon-hash';
 
     const isConfigurable = (isA === 'filter') || (isA === 'value') ||
       (isA === 'orderBy') || (isA === 'color') || (isA === 'size');
