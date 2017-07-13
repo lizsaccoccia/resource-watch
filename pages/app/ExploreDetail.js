@@ -224,10 +224,10 @@ class ExploreDetail extends Page {
                   <div className="dataset-info-actions">
 
                     <button
-                      className="c-button -primary -fullwidth"
+                      className="c-button -secondary -fullwidth"
                       onClick={this.handleShare}
                     >
-                      Share
+                      Share/Embed
                     </button>
                     <button
                       className={downloadButtonClass}
