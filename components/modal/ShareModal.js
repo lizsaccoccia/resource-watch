@@ -5,7 +5,8 @@ class ShareModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      copied: false
+      copied: false,
+      mode: 'share'
     };
   }
 
@@ -23,6 +24,7 @@ class ShareModal extends React.Component {
 
   getContent() {
     const { url } = this.props;
+    const { mode } = this.state;
     const content = (
       <div className="url-container">
         <input ref={(n) => { this.input = n; }} value={url} className="url" readOnly />
@@ -34,24 +36,29 @@ class ShareModal extends React.Component {
 
     return (
       <div className="share-content">
-        <h1 className="c-text -header-normal -thin title">Share this page</h1>
+        <h1 className="c-text -header-normal -thin title">
+          {mode === 'share' && 'Share this page'}
+          {mode === 'embed' && 'Share into my web'}
+        </h1>
         {content}
-        <div className="media">
-          <a
-            href={`http://www.facebook.com/sharer/sharer.php?u=${url}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Icon name="icon-facebook" className="-medium" />
-          </a>
-          <a
-            href={`https://twitter.com/share?url=${url}&text=Resource watch, explore datasets`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Icon name="icon-twitter" className="-medium" />
-          </a>
-        </div>
+        {mode === 'share' &&
+          <div className="media">
+            <a
+              href={`http://www.facebook.com/sharer/sharer.php?u=${url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon name="icon-facebook" className="-medium" />
+            </a>
+            <a
+              href={`https://twitter.com/share?url=${url}&text=Resource watch, explore datasets`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon name="icon-twitter" className="-medium" />
+            </a>
+          </div>
+        }
       </div>
     );
   }
