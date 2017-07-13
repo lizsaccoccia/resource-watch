@@ -1,4 +1,7 @@
 import React from 'react';
+import classnames from 'classnames';
+import { Autobind } from 'es-decorators';
+
 import Icon from 'components/ui/Icon';
 
 class ShareModal extends React.Component {
@@ -63,9 +66,47 @@ class ShareModal extends React.Component {
     );
   }
 
+  @Autobind
+  handleShare() {
+    this.setState({
+      mode: 'share'
+    });
+  }
+
+  @Autobind
+  handleEmbed() {
+    this.setState({
+      mode: 'embed'
+    });
+  }
+
   render() {
+    const { mode } = this.state;
+
     return (
       <div className="share-modal">
+        <header className="c-header -transparent">
+          <div>
+            <div className="header-main">
+              <nav className="header-menu">
+                <ul>
+                  <li
+                    className={classnames({ '-active': mode === 'share' })}
+                    onClick={this.handleShare}
+                  >
+                    <a>Link</a>
+                  </li>
+                  <li
+                    className={classnames({ '-active': mode === 'embed' })}
+                    onClick={this.handleEmbed}
+                  >
+                    <a>Embed</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </header>
         {this.getContent()}
       </div>
     );
