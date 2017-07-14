@@ -40,23 +40,11 @@ class WidgetCard extends React.Component {
   }
 
   /*
-  * HELPERS
-  */
-  getDescription(_text) {
-    let text = _text;
-    if (typeof text === 'string' && text.length > 70) {
-      text = text.replace(/^(.{70}[^\s]*).*/, '$1');
-      return `${text}...`;
-    }
-    return text;
-  }
-
-
-  /*
   * UI EVENTS
   *
   * - handleRemoveWidget
   * - handleClick
+  * - handleEmbed
   */
   @Autobind
   handleRemoveWidget() {
@@ -106,6 +94,12 @@ class WidgetCard extends React.Component {
               onClick={this.handleRemoveWidget}
             >
             Remove
+            </a>
+            <a
+              className="c-button"
+              onClick={this.handleEmbed}
+            >
+            Embed
             </a>
           </div>
 
