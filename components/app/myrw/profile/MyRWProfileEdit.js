@@ -1,7 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // Services
 import UserService from 'services/UserService';
+
+// Redux
+import withRedux from 'next-redux-wrapper';
+import { initStore } from 'store';
 
 // Components
 import Button from 'components/ui/Button';
@@ -43,12 +48,22 @@ class MyRWEditProfile extends React.Component {
     this.userService = new UserService({ apiURL: process.env.CONTROL_TOWER_URL });
   }
 
-  componentWillMount() {
-    this.userService.getLoggedUser().then((response) => {
-      console.log('get logged user: ', response);
-    }).catch((err) => {
-      console.log(err);
-    });
+  componentDidMount() {
+    this.waitForUserToBeLoaded();
+  }
+
+  waitForUserToBeLoaded() {
+    setTimeout(() => {
+      if (this.props.user.token) {
+        this.userService.getLoggedUser(this.props.user.token).then((response) => {
+          console.log('get logged user: ', response);
+        }).catch((err) => {
+          console.log(err);
+        });
+      } else {
+        this.waitForUserToBeLoaded();
+      }
+    }, 200);
   }
 
   triggerSaveProfile() {
@@ -156,4 +171,13 @@ class MyRWEditProfile extends React.Component {
   }
 }
 
-export default MyRWEditProfile;
+MyRWEditProfile.propTypes = {
+  // Store
+  user: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+  user: state.user
+});
+
+export default withRedux(initStore, mapStateToProps, null)(MyRWEditProfile);
