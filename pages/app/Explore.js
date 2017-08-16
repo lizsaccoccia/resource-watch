@@ -62,12 +62,14 @@ class Explore extends Page {
     super(props);
 
     this.state = {
-      vocabularies: props.explore.vocabularies.list || []
+      vocabularies: props.explore.vocabularies.list || [],
+      selectedTopic: null,
+      selectedDataType: null,
+      selectedGeography: null
     };
 
     // BINDINGS
     this.handleFilterDatasetsSearch = debounce(this.handleFilterDatasetsSearch.bind(this), 500);
-    this.handleFilterDatasetsIssue = this.handleFilterDatasetsIssue.bind(this);
   }
 
   componentWillMount() {
@@ -123,6 +125,7 @@ class Explore extends Page {
     this.props.setDatasetsPage(1);
   }
 
+  @Autobind
   handleFilterDatasetsIssue(item, levels, key) {
     const filter = item ? [{ levels, value: item.value, key }] : null;
     this.props.setDatasetsIssueFilter(filter);
@@ -248,19 +251,19 @@ class Explore extends Page {
               <div className="filters-container">
                 <CustomSelect
                   options={vocabularies}
-                  onValueChange={this.handleFilterDatasetsIssue}
+                  onValueChange={this.handleFilterDatasetsTopics}
                   placeholder="Topics"
                   value={issue && issue.length > 0 && issue[0].value}
                 />
                 <CustomSelect
                   options={geographiesVocabulary}
-                  onValueChange={this.handleFilterDatasetsIssue}
+                  onValueChange={this.handleFilterDatasetsGeographies}
                   placeholder="Geographies"
                   value={issue && issue.length > 0 && issue[0].value}
                 />
                 <CustomSelect
                   options={dataTypesVocabulary}
-                  onValueChange={this.handleFilterDatasetsIssue}
+                  onValueChange={this.handleFilterDatasetsDataTypes}
                   placeholder="Data types"
                   value={issue && issue.length > 0 && issue[0].value}
                 />
