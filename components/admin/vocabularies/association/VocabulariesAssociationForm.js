@@ -12,7 +12,7 @@ import { get, post } from 'utils/request';
 
 import { STATE_DEFAULT, FORM_ELEMENTS } from './constants';
 
-class DatasetVocabulariesForm extends React.Component {
+class VocabulariesAssociationForm extends React.Component {
   constructor(props) {
     super(props);
     const newState = Object.assign({}, STATE_DEFAULT, {
@@ -252,11 +252,11 @@ class DatasetVocabulariesForm extends React.Component {
   }
 }
 
-DatasetVocabulariesForm.propTypes = {
+VocabulariesAssociationForm.propTypes = {
   application: PropTypes.string,
   authorization: PropTypes.string,
   language: PropTypes.string,
   dataset: PropTypes.string.isRequired
 };
 
-export default DatasetVocabulariesForm;
+export default VocabulariesAssociationForm;

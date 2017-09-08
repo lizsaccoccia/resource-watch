@@ -110,7 +110,7 @@ export default class DatasetService {
     return new Promise((resolve) => {
       this.getFields().then((fieldsData) => {
         const filteredFields = fieldsData.fields.filter(field => field.columnType === 'number' || field.columnType === 'date' || field.columnType === 'string');
-        const promises = (filteredFields || []).map(field => {
+        const promises = (filteredFields || []).map((field) => {
           if (field.columnType === 'number' || field.columnType === 'date') {
             return this.getMinAndMax(field.columnName, fieldsData.tableName);
           }
