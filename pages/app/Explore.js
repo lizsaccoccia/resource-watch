@@ -28,8 +28,6 @@ import {
 } from 'redactions/explore';
 import { redirectTo } from 'redactions/common';
 import { toggleModal, setModalOptions } from 'redactions/modal';
-import { setUser } from 'redactions/user';
-import { setRouter } from 'redactions/routes';
 import { Link } from 'routes';
 
 // Selectors
@@ -67,14 +65,13 @@ const mapConfig = {
 };
 
 class Explore extends Page {
-  static async getInitialProps({ asPath, pathname, query, req, store, isServer }) {
-    const { user } = isServer ? req : store.getState();
-    const url = { asPath, pathname, query };
+  static async getInitialProps(context) {
+    const props = super.getInitialProps(context);
+
+    const { isServer, req, store } = context;
     const botUserAgent = isServer && /AddSearchBot/.test(req.headers['user-agent']);
-    store.dispatch(setUser(user));
-    store.dispatch(setRouter(url));
     if (isServer && botUserAgent) await store.dispatch(getDatasets({}));
-    return { user, isServer, url, botUserAgent };
+    return { ...props, botUserAgent };
   }
 
   constructor(props) {

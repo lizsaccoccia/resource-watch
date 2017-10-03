@@ -6,8 +6,6 @@ import 'isomorphic-fetch';
 // Redux
 import withRedux from 'next-redux-wrapper';
 import { initStore } from 'store';
-import { setUser } from 'redactions/user';
-import { setRouter } from 'redactions/routes';
 
 // Components
 import Page from 'components/app/layout/Page';
@@ -15,13 +13,13 @@ import EmbedLayout from 'components/app/layout/EmbedLayout';
 import Spinner from 'components/ui/Spinner';
 
 class EmbedTable extends Page {
-  static getInitialProps({ asPath, pathname, query, req, store, isServer }) {
-    const { user } = isServer ? req : store.getState();
-    const url = { asPath, pathname, query };
+  static getInitialProps(context) {
+    const props = super.getInitialProps(context);
+
+    const { req, isServer } = context;
     const referer = isServer ? req.headers.referer : location.href;
-    store.dispatch(setUser(user));
-    store.dispatch(setRouter(url));
-    return { user, isServer, url, referer, isLoading: true };
+
+    return { ...props, referer, isLoading: true };
   }
 
   isLoadedExternally() {

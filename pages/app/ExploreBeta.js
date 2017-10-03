@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import MediaQuery from 'react-responsive';
-import isEqual from 'lodash/isEqual';
 
 // Redux
 import withRedux from 'next-redux-wrapper';
 import { initStore } from 'store';
-import { setUser } from 'redactions/user';
-import { setRouter, setPage } from 'redactions/routes';
+import { setPage } from 'redactions/routes';
 import { getDatasets } from 'redactions/explore';
 
 // Components
@@ -19,16 +17,18 @@ import DatasetList from 'components/app/explore/DatasetList';
 import Paginator from 'components/ui/Paginator';
 
 class ExploreBeta extends Page {
-  static async getInitialProps({ asPath, pathname, query, req, store, isServer }) {
-    const { user } = isServer ? req : store.getState();
-    const url = { asPath, pathname, query };
-    store.dispatch(setUser(user));
-    store.dispatch(setRouter(url));
+  static async getInitialProps(context) {
+    const props = super.getInitialProps(context);
+
+    const { query, req, store, isServer } = context;
+    const botUserAgent = isServer && /AddSearchBot/.test(req.headers['user-agent']);
+
     await store.dispatch(getDatasets({
       pageNumber: query.page,
-      pageSize: Explore.defaultProps.pageSize
+      pageSize: ExploreBeta.defaultProps.pageSize
     }));
-    return { user, isServer, url, pageNumber: query.page };
+
+    return { ...props, botUserAgent, pageNumber: query.page };
   }
 
   onChangePage(page) {

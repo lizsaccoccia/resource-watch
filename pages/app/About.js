@@ -6,22 +6,17 @@ import withRedux from 'next-redux-wrapper';
 import { initStore } from 'store';
 import { bindActionCreators } from 'redux';
 import { getStaticData } from 'redactions/static_pages';
-import { setUser } from 'redactions/user';
-import { setRouter } from 'redactions/routes';
 
 import { Link } from 'routes';
-import Page from 'components/app/layout/Page';
+import withPage from 'hoc/with-page';
 import Layout from 'components/app/layout/Layout';
 import Banner from 'components/app/common/Banner';
 
-class About extends Page {
-  static async getInitialProps({ asPath, pathname, query, req, store, isServer }) {
-    const { user } = isServer ? req : store.getState();
-    const url = { asPath, pathname, query };
-    store.dispatch(setUser(user));
-    store.dispatch(setRouter(url));
-    await store.dispatch(getStaticData('about'));
-    return { isServer, user, url };
+class About extends React.Component {
+  static async getInitialProps(context) {
+    // const { store } = context;
+    // await store.dispatch(getStaticData('about'));
+    return { ...context };
   }
 
   componentDidMount() {
@@ -104,4 +99,4 @@ const mapDispatchToProps = dispatch => ({
   getStaticData: bindActionCreators(slug => getStaticData(slug), dispatch)
 });
 
-export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(About);
+export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(withPage(About));

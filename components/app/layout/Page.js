@@ -2,7 +2,10 @@ import React from 'react';
 import { setUser } from 'redactions/user';
 import { setRouter } from 'redactions/routes';
 
-export default class Page extends React.PureComponent {
+// HOC
+import withTracker from 'hoc/with-tracker';
+
+class Page extends React.PureComponent {
   static async getInitialProps({ asPath, pathname, query, req, store, isServer }) {
     const { user } = isServer ? req : store.getState();
     const url = { asPath, pathname, query };
@@ -10,6 +13,6 @@ export default class Page extends React.PureComponent {
     store.dispatch(setRouter(url));
     return { user, isServer, url };
   }
-
-  componentDidMount() {}
 }
+
+export default withTracker(Page);
