@@ -37,11 +37,13 @@ class Map extends React.Component {
   }
 
   componentDidMount() {
+    this.hasBeenMounted = true;
     const mapOptions = Object.assign({}, MAP_CONFIG, this.props.mapConfig || {});
     mapOptions.center = [mapOptions.latLng.lat, mapOptions.latLng.lng];
 
     // If leaflet haven't been imported, we can just skip the next steps
-    // if (!L) return;
+    if (!L) return;
+    if (!this.mapNode) return;
 
     this.map = L.map(this.mapNode, mapOptions);
 
