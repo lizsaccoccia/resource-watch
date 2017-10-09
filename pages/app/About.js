@@ -2,26 +2,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import renderHTML from 'react-render-html';
 
+// HOC
+import withPage from 'hoc/with-page';
+
+// Redux
 import withRedux from 'next-redux-wrapper';
 import { initStore } from 'store';
 import { bindActionCreators } from 'redux';
 import { getStaticData } from 'redactions/static_pages';
-import { setUser } from 'redactions/user';
-import { setRouter } from 'redactions/routes';
 
 import { Link } from 'routes';
-import Page from 'components/app/layout/Page';
 import Layout from 'components/app/layout/Layout';
 import Banner from 'components/app/common/Banner';
 
-class About extends Page {
-  static async getInitialProps({ asPath, pathname, query, req, store, isServer }) {
-    const { user } = isServer ? req : store.getState();
-    const url = { asPath, pathname, query };
-    store.dispatch(setUser(user));
-    store.dispatch(setRouter(url));
+class About extends React.Component {
+  static async getInitialProps(context) {
+    const { store } = context;
     await store.dispatch(getStaticData('about'));
-    return { isServer, user, url };
+    return {};
   }
 
   componentDidMount() {
@@ -42,8 +40,6 @@ class About extends Page {
       <Layout
         title="About"
         description="About description..."
-        url={this.props.url}
-        user={this.props.user}
         className="l-static p-about"
       >
 
@@ -90,7 +86,6 @@ class About extends Page {
 }
 
 About.propTypes = {
-  url: PropTypes.object,
   isServer: PropTypes.bool,
   data: PropTypes.object,
   getStaticData: PropTypes.func
@@ -104,4 +99,4 @@ const mapDispatchToProps = dispatch => ({
   getStaticData: bindActionCreators(slug => getStaticData(slug), dispatch)
 });
 
-export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(About);
+export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(withPage(About));

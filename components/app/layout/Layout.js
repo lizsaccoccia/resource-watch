@@ -113,7 +113,6 @@ Layout.propTypes = {
   user: PropTypes.object,
   url: PropTypes.object,
   pageHeader: PropTypes.bool,
-  isLoading: PropTypes.bool,
   className: PropTypes.string,
   // Store
   modal: PropTypes.object,
@@ -124,6 +123,7 @@ Layout.propTypes = {
 };
 
 const mapStateToProps = state => ({
+  url: state.routes,
   modal: state.modal,
   isLoading: state.page.isLoading
 });

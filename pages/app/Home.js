@@ -4,8 +4,10 @@ import { Link } from 'routes';
 import withRedux from 'next-redux-wrapper';
 import { initStore } from 'store';
 
+// HOC
+import withPage from 'hoc/with-page';
+
 // Layout
-import Page from 'components/app/layout/Page';
 import Layout from 'components/app/layout/Layout';
 
 // Components
@@ -79,7 +81,7 @@ const exploreCards = [
   }
 ];
 
-class Home extends Page {
+class Home extends React.Component {
   static insightsCardsStatic() {
     return insightsCards.map(c =>
       (<CardStatic
@@ -142,8 +144,6 @@ class Home extends Page {
       <Layout
         title="Resource Watch"
         description="Resource Watch description"
-        url={this.props.url}
-        user={this.props.user}
         className="page-home"
       >
         <div className="video-intro">
@@ -247,10 +247,9 @@ class Home extends Page {
             </div>
           </div>
         </Banner>
-
       </Layout>
     );
   }
 }
 
-export default withRedux(initStore, null, null)(Home);
+export default withRedux(initStore, null, null)(withPage(Home));

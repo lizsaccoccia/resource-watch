@@ -9,6 +9,9 @@ import isEqual from 'lodash/isEqual';
 import MediaQuery from 'react-responsive';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 
+// HOC
+import withPage from 'hoc/with-page';
+
 // Redux
 import withRedux from 'next-redux-wrapper';
 import { initStore } from 'store';
@@ -54,7 +57,6 @@ import Spinner from 'components/ui/Spinner';
 import SearchInput from 'components/ui/SearchInput';
 
 // Layout
-import Page from 'components/app/layout/Page';
 import Layout from 'components/app/layout/Layout';
 
 // Utils
@@ -72,15 +74,11 @@ const mapConfig = {
   }
 };
 
-class Explore extends Page {
-  static async getInitialProps({ asPath, pathname, query, req, store, isServer }) {
-    const { user } = isServer ? req : store.getState();
-    const url = { asPath, pathname, query };
+class Explore extends React.Component {
+  static async getInitialProps({ req, store, isServer }) {
     const botUserAgent = isServer && /AddSearchBot/.test(req.headers['user-agent']);
-    store.dispatch(setUser(user));
-    store.dispatch(setRouter(url));
     if (isServer && botUserAgent) await store.dispatch(getDatasets({}));
-    return { user, isServer, url, botUserAgent };
+    return { botUserAgent };
   }
 
   constructor(props) {
@@ -715,4 +713,4 @@ const mapDispatchToProps = dispatch => ({
   setDataTypeTree: tree => dispatch(setDataTypeTree(tree))
 });
 
-export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(Explore);
+export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(withPage(Explore));

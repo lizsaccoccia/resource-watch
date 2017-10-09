@@ -10,6 +10,4 @@ export default class Page extends React.PureComponent {
     store.dispatch(setRouter(url));
     return { user, isServer, url };
   }
-
-  componentDidMount() {}
 }
