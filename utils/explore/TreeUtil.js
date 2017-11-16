@@ -39,3 +39,20 @@ export function sortTree(tree) {
   }
   return tree;
 }
+
+export function calculateCountWithDescendants(tree, conceptCount) {
+  if (tree.length && tree.length > 1) {
+    tree.forEach(val => calculateCountWithDescendants(val, conceptCount));
+  } else {
+    let totalCount = conceptCount[tree.value];
+    if (tree.children && tree.children.length > 0) {
+      tree.children.forEach((child) => {
+        const tempTree = calculateCountWithDescendants(child, conceptCount);
+        totalCount += tempTree.count;
+      });
+    }
+    tree.count = totalCount; // eslint-disable-line no-param-reassign
+    tree.label = `${tree.label} (${totalCount})`; // eslint-disable-line no-param-reassign
+  }
+  return tree;
+}

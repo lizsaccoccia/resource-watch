@@ -66,7 +66,11 @@ import Layout from 'components/app/layout/Layout';
 
 // Utils
 import LayerManager from 'components/widgets/editor/helpers/LayerManager';
-import { findTagInSelectorTree, sortTree } from 'utils/explore/TreeUtil';
+import {
+  findTagInSelectorTree,
+  sortTree,
+  calculateCountWithDescendants
+} from 'utils/explore/TreeUtil';
 
 // Services
 import DatasetService from 'services/DatasetService';
@@ -229,6 +233,7 @@ class Explore extends Page {
       .then(response => response.json())
       .then((data) => {
         const sortedTopicsTree = sortTree(data);
+        const treeWithCount = calculateCountWithDescendants(sortedTopicsTree, this.conceptsCount);
 
         if (topics) {
           data.forEach(child => this.selectElementsFromTree(child, JSON.parse(topics)));
@@ -242,7 +247,7 @@ class Explore extends Page {
         }
 
         // Save the topics tree as variable for later use
-        this.props.setTopicsTree(sortedTopicsTree);
+        this.props.setTopicsTree(treeWithCount);
       });
 
     // Data types selector
