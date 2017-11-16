@@ -1,24 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Autobind } from 'es-decorators';
+import classnames from 'classnames';
+
+// Components
 import Icon from 'components/ui/Icon';
+
 
 class ToggleSearch extends React.Component {
   constructor(props) {
     super(props);
     this.state = { open: props.open || false };
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextState && this.state.open !== nextState.open) return true;
-    return false;
-  }
-
-  onUserFocus() {
-    this.setState({ open: true });
-  }
-
-  onUserBlur() {
-    this.setState({ open: false });
   }
 
   componentWillMount() {
@@ -35,12 +27,39 @@ class ToggleSearch extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState && this.state.open !== nextState.open) return true;
+    return false;
+  }
+
+  onUserFocus() {
+    this.setState({ open: true });
+  }
+
+  onUserBlur() {
+    this.setState({ open: false });
+  }
+
+  @Autobind
+  handleSearchClick() {
+    this.setState({ open: true });
+  }
+
   render() {
-    const classNames = this.state.open && '-open';
+    const { open } = this.state;
+    const classNames = classnames({
+      '-open': open
+    });
     return (
       <form className={`toggle-search ${classNames}`}>
         <div className="c-field-search">
-          <Icon name="icon-search" className="-small" />
+          <div
+            onClick={this.handleSearchClick}
+            role="button"
+            tabIndex={-1}
+          >
+            <Icon name="icon-search" />
+          </div>
           <input
             type="text"
             placeholder="Search"
@@ -54,12 +73,12 @@ class ToggleSearch extends React.Component {
   }
 }
 
-ToggleSearch.propTypes = {
-  open: PropTypes.bool
-};
-
 ToggleSearch.defaultProps = {
   open: false
+};
+
+ToggleSearch.propTypes = {
+  open: PropTypes.bool
 };
 
 export default ToggleSearch;

@@ -7,7 +7,7 @@
   }
 
   input {
-    display: inline-block;
+    display: none;
     padding: $margin-size-extra-small/2 $margin-size-extra-small;
     padding-right: 25px;
     margin: 0;
@@ -26,6 +26,7 @@
   }
 
   &.-open input {
+    display: inline-block;
     width: auto;
     border: 1px solid $border-color-2;
   }
@@ -35,6 +36,7 @@
     top: 50%;
     right: 5px;
     transform: translateY(-50%);
-    fill: $base-font-color;
+    fill: $white;
+    cursor: pointer;
   }
 }
