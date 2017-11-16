@@ -66,31 +66,13 @@ import Layout from 'components/app/layout/Layout';
 
 // Utils
 import LayerManager from 'components/widgets/editor/helpers/LayerManager';
-import { findTagInSelectorTree } from 'utils/explore/TreeUtil';
+import { findTagInSelectorTree, sortTree } from 'utils/explore/TreeUtil';
 
 // Services
 import DatasetService from 'services/DatasetService';
+import GraphService from 'services/GraphService';
 
 class Explore extends Page {
-  static sortTree(tree) {
-    if (tree.length && tree.length > 1) {
-      tree.sort((a, b) => {
-        if (a.label < b.label) {
-          return -1;
-        } else if (a.label > b.label) {
-          return 1;
-        } else { // eslint-disable-line no-else-return
-          return 0;
-        }
-      });
-
-      tree.forEach(val => Explore.sortTree(val));
-    } else if (tree.children && tree.children.length > 0) {
-      tree.children = Explore.sortTree(tree.children); // eslint-disable-line no-param-reassign
-    }
-    return tree;
-  }
-
   static async getInitialProps({ asPath, pathname, query, req, store, isServer }) {
     const { user } = isServer ? req : store.getState();
     const url = { asPath, pathname, query };
@@ -131,6 +113,7 @@ class Explore extends Page {
       apiURL: process.env.WRI_API_URL,
       language: props.locale
     });
+    this.graphService = new GraphService({ apiURL: process.env.WRI_API_URL });
 
     // BINDINGS
     this.handleFilterDatasetsSearch = debounce(this.handleFilterDatasetsSearch.bind(this), 500);
@@ -192,7 +175,15 @@ class Explore extends Page {
       const token = user.token.includes('Bearer') ? user.token : `Bearer ${user.token}`;
       this.props.getFavoriteDatasets(token);
     }
-    this.loadKnowledgeGraph();
+
+    // Get concepts list in order to gather the number of times they've been used to tagged datasets
+    this.graphService.getAllTags().then((response) => {
+      this.conceptsCount = {};
+      response.forEach((elem) => { this.conceptsCount[elem.id] = elem.numberOfDatasetsTagged; });
+
+      // Load the knowledge graph (topics, data type and geographies trees)
+      this.loadKnowledgeGraph();
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -237,7 +228,7 @@ class Explore extends Page {
     fetch(new Request('/static/data/TopicsTreeLite.json', { credentials: 'same-origin' }))
       .then(response => response.json())
       .then((data) => {
-        const sortedTopicsTree = Explore.sortTree(data);
+        const sortedTopicsTree = sortTree(data);
 
         if (topics) {
           data.forEach(child => this.selectElementsFromTree(child, JSON.parse(topics)));
@@ -258,7 +249,7 @@ class Explore extends Page {
     fetch(new Request('/static/data/DataTypesTreeLite.json', { credentials: 'same-origin' }))
       .then(response => response.json())
       .then((data) => {
-        const sortedDataTypeTree = Explore.sortTree(data);
+        const sortedDataTypeTree = sortTree(data);
         if (dataType) {
           data.forEach(child => this.selectElementsFromTree(child, JSON.parse(dataType)));
           const dataTypesVal = JSON.parse(dataType).map((type) => {
@@ -277,7 +268,7 @@ class Explore extends Page {
     fetch(new Request('/static/data/GeographiesTreeLite.json', { credentials: 'same-origin' }))
       .then(response => response.json())
       .then((data) => {
-        const sortedGeographiesTree = Explore.sortTree(data);
+        const sortedGeographiesTree = sortTree(data);
         if (geographies) {
           data.forEach(child => this.selectElementsFromTree(child, JSON.parse(geographies)));
           const geographiesVal = [];
