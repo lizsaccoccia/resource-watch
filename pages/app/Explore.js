@@ -183,7 +183,12 @@ class Explore extends Page {
     // Get concepts list in order to gather the number of times they've been used to tagged datasets
     this.graphService.getAllTags().then((response) => {
       this.conceptsCount = {};
-      response.forEach((elem) => { this.conceptsCount[elem.id] = elem.numberOfDatasetsTagged; });
+      response.forEach((elem) => {
+        this.conceptsCount[elem.id] = {
+          count: elem.numberOfDatasetsTagged,
+          datasets: elem.datasets
+        };
+      });
 
       // Load the knowledge graph (topics, data type and geographies trees)
       this.loadKnowledgeGraph();

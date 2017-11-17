@@ -44,15 +44,15 @@ export function calculateCountWithDescendants(tree, conceptCount) {
   if (tree.length && tree.length > 1) {
     tree.forEach(val => calculateCountWithDescendants(val, conceptCount));
   } else {
-    let totalCount = conceptCount[tree.value];
+    const totalCountSet = new Set(conceptCount[tree.value].datasets);
     if (tree.children && tree.children.length > 0) {
       tree.children.forEach((child) => {
         const tempTree = calculateCountWithDescendants(child, conceptCount);
-        totalCount += tempTree.count;
+        totalCountSet.add(tempTree.datasets);
       });
     }
-    tree.count = totalCount; // eslint-disable-line no-param-reassign
-    tree.label = `${tree.label} (${totalCount})`; // eslint-disable-line no-param-reassign
+    tree.datasets = totalCountSet; // eslint-disable-line no-param-reassign
+    tree.label = `${tree.label} (${totalCountSet.length})`; // eslint-disable-line no-param-reassign
   }
   return tree;
 }
