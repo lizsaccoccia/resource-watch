@@ -17,6 +17,8 @@ import Banner from 'components/app/common/Banner';
 import CardStatic from 'components/app/common/CardStatic';
 import Rating from 'components/app/common/Rating';
 
+import Dropdown, { actions as dropDownActions} from 'components/dropdown/dropdown';
+
 const exploreCards = [
   {
     tag: 'Explore Data',
@@ -132,6 +134,10 @@ class Home extends Page {
         user={this.props.user}
         className="page-home"
       >
+        <div>
+          <Dropdown />
+        </div>
+
         <div className="video-intro">
           <div className="video-foreground">
             <iframe
@@ -247,8 +253,9 @@ class Home extends Page {
 
 const mapStateToProps = state => ({ insights: state.insights.list });
 
-const mapDispatchToProps = dispatch => ({
-  getInsights: () => dispatch(getInsights())
-});
+const mapDispatchToProps = {
+  ...dropDownActions,
+  getInsights
+};
 
 export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(Home);

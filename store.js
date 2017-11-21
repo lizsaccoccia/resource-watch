@@ -4,6 +4,9 @@ import { createStore, applyMiddleware, combineReducers } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
 import * as reducers from 'redactions';
+import { handleModule } from 'redux-actions';
+import * as dropdownModule from 'components/dropdown/dropdown';
+
 
 if (process.env.NODE_ENV === 'production') {
   initOpbeat({
@@ -13,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // REDUCERS
-const reducer = combineReducers({ ...reducers });
+const reducer = combineReducers({ ...reducers,  dropdown: handleModule(dropdownModule) });
 
 export const initStore = (initialState = {}) => createStore(
   reducer,
