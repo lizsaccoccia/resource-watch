@@ -53,7 +53,7 @@ export default function DashboardsList({
                                 onSelectDashboard(dashboard);
                               }}
                             >
-                              {dashboard.title}
+                              {dashboard.name}
                             </span>
                           </Title>
                         </header>

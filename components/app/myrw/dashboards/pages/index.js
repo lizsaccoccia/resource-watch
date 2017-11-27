@@ -10,6 +10,8 @@ import DashboardsList from 'components/dashboards/list/dashboard-list';
 function DashboardsIndex(props) {
   const { user } = props;
 
+  console.log(user);
+
   return (
     <div className="c-dashboards-index">
       <DashboardsList

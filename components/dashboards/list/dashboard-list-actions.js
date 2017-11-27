@@ -19,8 +19,6 @@ export const fetchWidgets = createThunkAction('DASHBOARDS_LIST_FETCH_DATA', (pay
   dispatch(setError(null));
 
   const qParams = queryString.stringify({
-    application: [process.env.APPLICATIONS],
-    env: process.env.API_ENV,
     sort: 'name',
     'page[number]': 1,
     'page[size]': 9,
@@ -32,7 +30,6 @@ export const fetchWidgets = createThunkAction('DASHBOARDS_LIST_FETCH_DATA', (pay
     .then(({ data, meta }) => {
       dispatch(setLoading(false));
       dispatch(setError(null));
-      console.log(data);
 
       dispatch(setDashboards(data.map(d => ({ ...d.attributes, id: d.id }))));
       dispatch(setTotal(meta['total-items']));

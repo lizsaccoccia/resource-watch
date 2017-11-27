@@ -53,7 +53,7 @@ class DashboardsList extends React.Component {
     props.fetchWidgets({
       filters: {
         ...props.filters,
-        ...!!props.data.search && { name: props.data.search },
+        ...!!props.data.search && { 'filter[name]': props.data.search },
         'page[number]': props.data.page
       }
     });
