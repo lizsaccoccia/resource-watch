@@ -7,6 +7,21 @@ import { Link } from 'routes';
 import Title from 'components/ui/Title';
 
 class DashboardsListCard extends React.Component {
+  static propTypes = {
+    dashboard: PropTypes.object,
+    routes: PropTypes.object
+  }
+
+  static defaultProps = {
+    routes: {
+      index: '',
+      detail: ''
+    },
+    dashboard: {}
+  }
+
+  SERVER = 'hola'
+
   render() {
     const { dashboard, routes } = this.props;
 
@@ -24,9 +39,6 @@ class DashboardsListCard extends React.Component {
                 </Title>
               </a>
             </Link>
-            <Title className="-small">
-              {dashboard.provider}
-            </Title>
           </header>
 
           <div className="card-content">
@@ -38,18 +50,5 @@ class DashboardsListCard extends React.Component {
     );
   }
 }
-
-DashboardsListCard.defaultProps = {
-  routes: {
-    index: '',
-    detail: ''
-  },
-  dashboard: {}
-};
-
-DashboardsListCard.propTypes = {
-  dashboard: PropTypes.object,
-  routes: PropTypes.object
-};
 
 export default DashboardsListCard;

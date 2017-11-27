@@ -66,7 +66,7 @@ class DashboardsDetail extends Page {
 
             { !!dashboards.list.length && <div className="row">
               <div className="column small-12">
-                <ul className="dashboards-list">
+                <ul className="dashboard-list">
                   {
                     dashboards.list.map(dashboard => (
                       <li

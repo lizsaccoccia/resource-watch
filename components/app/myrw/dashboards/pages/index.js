@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 // Components
-import DashboardsList from 'components/dashboards/list/DashboardsList';
+import DashboardsList from 'components/dashboards/list/dashboard-list';
 
 function DashboardsIndex(props) {
   const { user } = props;
@@ -13,13 +13,10 @@ function DashboardsIndex(props) {
   return (
     <div className="c-dashboards-index">
       <DashboardsList
-        getDashboardsFilters={{
+        filters={{
           'filter[user]': user.id
         }}
-        routes={{
-          index: 'myrw',
-          detail: 'myrw_detail'
-        }}
+        onSelectDashboard={d => console.info(d)}
       />
     </div>
   );

@@ -97,7 +97,7 @@ class Dashboards extends Page {
 
             <div className="row">
               <div className="column small-12">
-                <ul className="dashboards-list">
+                <ul className="dashboard-list">
                   {
                     dashboards
                       .map(dashboard => (
