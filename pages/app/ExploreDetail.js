@@ -42,7 +42,10 @@ import WidgetEditor, {
 import ShareExploreDetailModal from 'components/modal/ShareExploreDetailModal';
 import SubscribeToDatasetModal from 'components/modal/SubscribeToDatasetModal';
 import LoginModal from 'components/modal/LoginModal';
-import DatasetList from 'components/app/explore/DatasetList';
+// import DatasetList from 'components/app/explore/DatasetList';
+
+import SimilarDatasets from 'components/datasets/similar/similar-datasets';
+
 import Banner from 'components/app/common/Banner';
 
 import Error from '../_error';
@@ -63,13 +66,6 @@ class ExploreDetail extends Page {
     if (!exploreDataset && res) res.statusCode = 404;
     if (exploreDataset && !exploreDataset.data.published && res) res.statusCode = 404;
 
-    // Change the configuration according to your needs
-    setConfig({
-      userToken: store.getState().user.token,
-      userEmail: store.getState().user.email
-    });
-
-
     return { user, isServer, url };
   }
 
@@ -78,9 +74,9 @@ class ExploreDetail extends Page {
 
     this.state = {
       dataset: {},
+      widget: {},
+      metadata: {},
       loading: false,
-      similarDatasetsLoaded: false,
-      similarDatasets: [],
       showDescription: false,
       showFunction: false,
       showCautions: false,
@@ -114,16 +110,20 @@ class ExploreDetail extends Page {
   */
   componentDidMount() {
     this.getDataset();
-    this.getSimilarDatasets();
     this.loadTopicsTree();
     this.countView(this.props.url.query.id);
+
+    // Change the configuration according to your needs
+    setConfig({
+      userToken: this.props.user.token,
+      userEmail: this.props.user.email
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.url.query.id !== nextProps.url.query.id) {
       this.props.resetDataset();
       this.setState({
-        similarDatasetsLoaded: false,
         datasetLoaded: false
       }, () => {
         this.datasetService = new DatasetService(nextProps.url.query.id, {
@@ -133,7 +133,6 @@ class ExploreDetail extends Page {
         // Scroll to the top of the page
         window.scrollTo(0, 0);
         this.getDataset();
-        this.getSimilarDatasets();
       });
 
       this.countView(nextProps.url.query.id);
@@ -169,13 +168,16 @@ class ExploreDetail extends Page {
       loading: true
     }, () => {
       this.datasetService.fetchData('layer,metadata,vocabulary,widget').then((response) => {
-        const defaultEditableWidget = response.attributes.widget.find(widget => widget.attributes.defaultEditableWidget === true);
+        const widget = response.attributes.widget.find(w => w.attributes.defaultEditableWidget === true);
+        const metadata = (response.attributes.metadata[0] || {}).attributes;
 
         this.setState({
           dataset: response,
           datasetLoaded: true,
+          widget,
+          metadata,
           loading: false
-        }, () => defaultEditableWidget && this.loadDefaultWidgetIntoRedux(defaultEditableWidget));
+        });
 
         // Load inferred tags
         const vocabulary = response.attributes.vocabulary;
@@ -207,62 +209,6 @@ class ExploreDetail extends Page {
         this.setState({ inferredTags: [] });
         console.error(err);
       });
-  }
-
-  getSimilarDatasets() {
-    this.setState({ similarDatasetsLoaded: false });
-
-    this.datasetService.getSimilarDatasets()
-      .then(res => res.map(val => val.dataset).slice(0, 7))
-      .then((ids) => {
-        if (ids.length === 0) return [];
-        return DatasetService.getDatasets(ids, this.props.locale, 'widget,metadata,layer,vocabulary');
-      })
-      .then(similarDatasets => this.setState({ similarDatasets }))
-      .catch((err) => {
-        console.error(err);
-        toastr.error('Error', 'Unable to load the similar datasets');
-      })
-      .then(() => this.setState({ similarDatasetsLoaded: true }));
-  }
-
-  loadDefaultWidgetIntoRedux(defaultEditableWidget) {
-    const { paramsConfig } = defaultEditableWidget.attributes.widgetConfig;
-    const { name } = defaultEditableWidget.attributes;
-    if (paramsConfig) {
-      const {
-        visualizationType,
-        band,
-        value,
-        category,
-        color,
-        size,
-        aggregateFunction,
-        orderBy,
-        filters,
-        limit,
-        chartType,
-        layer
-      } = paramsConfig;
-
-      // We restore the type of visualization
-      // We default to "chart" to maintain the compatibility with previously created
-      // widgets (at that time, only "chart" widgets could be created)
-      this.props.setVisualizationType(visualizationType || 'chart');
-
-      if (band) this.props.setBand(band);
-      if (layer) this.props.setLayer(layer);
-      if (aggregateFunction) this.props.setAggregateFunction(aggregateFunction);
-      if (value) this.props.setValue(value);
-      if (size) this.props.setSize(size);
-      if (color) this.props.setColor(color);
-      if (orderBy) this.props.setOrderBy(orderBy);
-      if (category) this.props.setCategory(category);
-      if (filters) this.props.setFilters(filters);
-      if (limit) this.props.setLimit(limit);
-      if (chartType) this.props.setChartType(chartType);
-      if (name) this.props.setTitle(name);
-    }
   }
 
   /**
@@ -300,6 +246,7 @@ class ExploreDetail extends Page {
     this.props.toggleModal(true);
     this.props.setModalOptions(options);
   }
+
   handleSubscribe() {
     const { user } = this.props;
     let options = null;
@@ -410,19 +357,16 @@ class ExploreDetail extends Page {
 
   render() {
     const { url, user, exploreDataset } = this.props;
-    const { dataset, loading, similarDatasets, similarDatasetsLoaded, inferredTags } = this.state;
-    const metadataObj = dataset.id && dataset.attributes.metadata;
-    const metadata = metadataObj && metadataObj.length > 0 && metadataObj[0];
-    const metadataAttributes = (metadata && metadata.attributes) || {};
-    const metadataInfo = (metadataAttributes && metadataAttributes.info) || {};
-    const { description } = metadataAttributes;
+
+    const { dataset, widget, metadata, loading, inferredTags } = this.state;
+    const metadataInfo = (metadata && metadata.info) || {};
     const { functions, cautions } = metadataInfo;
 
     const showOpenInExploreButton = dataset.id && dataset.attributes.layer && dataset.attributes.layer.length > 0;
 
     const favourite = user.favourites.find(f => f.attributes.resourceId === url.query.id);
 
-    const formattedDescription = this.shortenAndFormat(description, 'showDescription');
+    const formattedDescription = this.shortenAndFormat(metadata.description, 'showDescription');
     const formattedFunctions = this.shortenAndFormat(functions, 'showFunction');
     const formattedCautions = this.shortenAndFormat(cautions, 'showCautions');
 
@@ -439,7 +383,7 @@ class ExploreDetail extends Page {
     return (
       <Layout
         title={metadataInfo && metadataInfo.name ? metadataInfo.name : (dataset.id && dataset.attributes && dataset.attributes.name)}
-        description={description || ''}
+        description={metadata.description || ''}
         category="Dataset"
         url={url}
         user={user}
@@ -454,38 +398,42 @@ class ExploreDetail extends Page {
           {/* PAGE HEADER */}
           <div className="c-page-header">
             <div className="l-container">
-              <div className="page-header-content">
-                <Breadcrumbs
-                  items={[{ name: 'Explore datasets', route: 'explore' }]}
-                />
+              <div className="row l-row">
+                <div className="column small-12">
+                  <div className="page-header-content">
+                    <Breadcrumbs
+                      items={[{ name: 'Explore datasets', route: 'explore' }]}
+                    />
 
-                <h1>
-                  {metadataInfo && metadataInfo.name ? metadataInfo.name : (dataset.id && dataset.attributes && dataset.attributes.name)}
-                </h1>
+                    <h1>
+                      {metadataInfo && metadataInfo.name ? metadataInfo.name : (dataset.id && dataset.attributes && dataset.attributes.name)}
+                    </h1>
 
-                <div className="page-header-info">
-                  <ul>
-                    <li>Source: {(metadata && metadata.attributes.source) || '-'}</li>
-                    <li>Last update: {dataset.id && dataset.attributes && new Date(dataset.attributes.updatedAt).toJSON().slice(0, 10).replace(/-/g, '/')}</li>
-                    {/* Favorite dataset icon */}
-                    {user && user.id &&
-                      <li>
-                        <div
-                          className="favourite-button"
-                          onClick={this.handleFavoriteButtonClick}
-                          title="Favorite dataset"
-                          role="button"
-                          tabIndex={-1}
-                        >
-                          <Icon
-                            name={starIconName}
-                            className={starIconClass}
-                          />
-                        </div>
-                      </li>
-                    }
-                    {/* Favorites */}
-                  </ul>
+                    <div className="page-header-info">
+                      <ul>
+                        <li>Source: {(metadata && metadata.source) || '-'}</li>
+                        <li>Last update: {dataset.id && dataset.attributes && new Date(dataset.attributes.updatedAt).toJSON().slice(0, 10).replace(/-/g, '/')}</li>
+                        {/* Favorite dataset icon */}
+                        {user && user.id &&
+                          <li>
+                            <div
+                              className="favourite-button"
+                              onClick={this.handleFavoriteButtonClick}
+                              title="Favorite dataset"
+                              role="button"
+                              tabIndex={-1}
+                            >
+                              <Icon
+                                name={starIconName}
+                                className={starIconClass}
+                              />
+                            </div>
+                          </li>
+                        }
+                        {/* Favorites */}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -583,6 +531,7 @@ class ExploreDetail extends Page {
 
             <WidgetEditor
               datasetId={dataset.id}
+              widgetId={widget.id}
             />
           </MediaQuery>
 
@@ -700,10 +649,10 @@ class ExploreDetail extends Page {
                     </div>
                   }
 
-                  {metadataAttributes && metadataAttributes.language &&
+                  {metadata && metadata.language &&
                     <div className="l-section-mod">
                       <h3>Published language</h3>
-                      <p>{metadataAttributes.language}</p>
+                      <p>{metadata.language}</p>
                     </div>
                   }
 
@@ -745,20 +694,10 @@ class ExploreDetail extends Page {
                     <div className="row">
                       <div className="column small-12">
                         <h3>Similar datasets</h3>
-                        <Spinner
-                          isLoading={!similarDatasetsLoaded}
-                          className="-relative -light"
+
+                        <SimilarDatasets
+                          datasetId={exploreDataset.data.id}
                         />
-                        {similarDatasets && similarDatasets.length > 0 &&
-                        <DatasetList
-                          active={[]}
-                          list={similarDatasets}
-                          mode="grid"
-                          showActions={false}
-                          showFavorite={false}
-                          onTagSelected={this.handleTagSelected}
-                        />
-                        }
                       </div>
                     </div>
                   </div>
@@ -812,7 +751,6 @@ ExploreDetail.propTypes = {
   url: PropTypes.object.isRequired,
   // Store
   user: PropTypes.object,
-  widgetEditor: PropTypes.object,
   locale: PropTypes.string.isRequired,
   // ACTIONS
   resetDataset: PropTypes.func.isRequired,
