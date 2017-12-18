@@ -13,21 +13,6 @@ import { resetDataset } from 'redactions/exploreDetail';
 import { getDataset } from 'redactions/exploreDataset';
 import { toggleModal, setModalOptions } from 'redactions/modal';
 import updateLayersShown from 'selectors/explore/layersShownExploreDetail';
-import {
-  setFilters,
-  setColor,
-  setCategory,
-  setValue,
-  setSize,
-  setOrderBy,
-  setAggregateFunction,
-  setLimit,
-  setChartType,
-  setBand,
-  setVisualizationType,
-  setLayer,
-  setTitle
-} from 'components/widgets/editor/redux/widgetEditor';
 import { setUser, toggleFavourite } from 'redactions/user';
 import { setRouter } from 'redactions/routes';
 
@@ -36,7 +21,6 @@ import { Link, Router } from 'routes';
 
 // Services
 import DatasetService from 'services/DatasetService';
-import LayersService from 'services/LayersService';
 import GraphService from 'services/GraphService';
 import UserService from 'services/UserService';
 
@@ -46,7 +30,15 @@ import Layout from 'components/app/layout/Layout';
 import Icon from 'components/ui/Icon';
 import Breadcrumbs from 'components/ui/Breadcrumbs';
 import Spinner from 'components/ui/Spinner';
-import WidgetEditor from 'components/widgets/editor/WidgetEditor';
+
+// Widget editor
+import WidgetEditor, {
+  Modal as WidgetEditorModal,
+  Tooltip as WidgetEditorTooltip,
+  Icons as WidgetEditorIcons,
+  setConfig
+} from 'widget-editor';
+
 import ShareExploreDetailModal from 'components/modal/ShareExploreDetailModal';
 import SubscribeToDatasetModal from 'components/modal/SubscribeToDatasetModal';
 import LoginModal from 'components/modal/LoginModal';
@@ -71,6 +63,13 @@ class ExploreDetail extends Page {
     if (!exploreDataset && res) res.statusCode = 404;
     if (exploreDataset && !exploreDataset.data.published && res) res.statusCode = 404;
 
+    // Change the configuration according to your needs
+    setConfig({
+      userToken: store.getState().user.token,
+      userEmail: store.getState().user.email
+    });
+
+
     return { user, isServer, url };
   }
 
@@ -78,7 +77,7 @@ class ExploreDetail extends Page {
     super(props);
 
     this.state = {
-      dataset: null,
+      dataset: {},
       loading: false,
       similarDatasetsLoaded: false,
       similarDatasets: [],
@@ -283,7 +282,7 @@ class ExploreDetail extends Page {
   */
   handleShare() {
     const { dataset } = this.state;
-    const widgets = dataset && dataset.attributes.widget;
+    const widgets = dataset.id && dataset.attributes.widget;
     let widget = null;
     if (widgets) {
       widget = widgets.find(value => value.attributes.default === true);
@@ -412,14 +411,14 @@ class ExploreDetail extends Page {
   render() {
     const { url, user, exploreDataset } = this.props;
     const { dataset, loading, similarDatasets, similarDatasetsLoaded, inferredTags } = this.state;
-    const metadataObj = dataset && dataset.attributes.metadata;
+    const metadataObj = dataset.id && dataset.attributes.metadata;
     const metadata = metadataObj && metadataObj.length > 0 && metadataObj[0];
     const metadataAttributes = (metadata && metadata.attributes) || {};
     const metadataInfo = (metadataAttributes && metadataAttributes.info) || {};
     const { description } = metadataAttributes;
     const { functions, cautions } = metadataInfo;
 
-    const showOpenInExploreButton = dataset && dataset.attributes.layer && dataset.attributes.layer.length > 0;
+    const showOpenInExploreButton = dataset.id && dataset.attributes.layer && dataset.attributes.layer.length > 0;
 
     const favourite = user.favourites.find(f => f.attributes.resourceId === url.query.id);
 
@@ -435,11 +434,11 @@ class ExploreDetail extends Page {
     });
 
     if (exploreDataset && exploreDataset.error === 'Not Found') return <Error status={404} />;
-    if (dataset && !dataset.attributes.published) return <Error status={404} />;
+    if (dataset.id && !dataset.attributes.published) return <Error status={404} />;
 
     return (
       <Layout
-        title={metadataInfo && metadataInfo.name ? metadataInfo.name : (dataset && dataset.attributes && dataset.attributes.name)}
+        title={metadataInfo && metadataInfo.name ? metadataInfo.name : (dataset.id && dataset.attributes && dataset.attributes.name)}
         description={description || ''}
         category="Dataset"
         url={url}
@@ -461,13 +460,13 @@ class ExploreDetail extends Page {
                 />
 
                 <h1>
-                  {metadataInfo && metadataInfo.name ? metadataInfo.name : (dataset && dataset.attributes && dataset.attributes.name)}
+                  {metadataInfo && metadataInfo.name ? metadataInfo.name : (dataset.id && dataset.attributes && dataset.attributes.name)}
                 </h1>
 
                 <div className="page-header-info">
                   <ul>
                     <li>Source: {(metadata && metadata.attributes.source) || '-'}</li>
-                    <li>Last update: {dataset && dataset.attributes && new Date(dataset.attributes.updatedAt).toJSON().slice(0, 10).replace(/-/g, '/')}</li>
+                    <li>Last update: {dataset.id && dataset.attributes && new Date(dataset.attributes.updatedAt).toJSON().slice(0, 10).replace(/-/g, '/')}</li>
                     {/* Favorite dataset icon */}
                     {user && user.id &&
                       <li>
@@ -511,6 +510,7 @@ class ExploreDetail extends Page {
                     >
                       Share dataset
                     </button>
+
                     {showOpenInExploreButton &&
                       <Link
                         route="explore"
@@ -529,16 +529,18 @@ class ExploreDetail extends Page {
                         </a>
                       </Link>
                     }
+
                     {metadataInfo && metadataInfo.data_download_link &&
                       <a
                         className="c-button -primary -fullwidth"
                         target="_blank"
                         href={metadataInfo && metadataInfo.data_download_link}
-                        onClick={() => logEvent('Explore', 'Download data', dataset && dataset.attributes.name)}
+                        onClick={() => logEvent('Explore', 'Download data', dataset.id && dataset.attributes.name)}
                       >
                         Download
                       </a>
                     }
+
                     {metadataInfo && metadataInfo.data_download_original_link &&
                       <a
                         className="c-button -secondary -fullwidth"
@@ -548,6 +550,7 @@ class ExploreDetail extends Page {
                         Download from source
                       </a>
                     }
+
                     {metadataInfo && metadataInfo.learn_more_link &&
                       <a
                         className="c-button -secondary -fullwidth"
@@ -557,7 +560,8 @@ class ExploreDetail extends Page {
                         Learn more
                       </a>
                     }
-                    {dataset && dataset.attributes && dataset.attributes.subscribable &&
+
+                    {dataset.id && dataset.attributes && dataset.attributes.subscribable &&
                       <button
                         className="c-button -secondary -fullwidth"
                         onClick={this.handleSubscribe}
@@ -573,14 +577,13 @@ class ExploreDetail extends Page {
 
           {/* WIDGET EDITOR */}
           <MediaQuery minDeviceWidth={720} values={{ deviceWidth: 720 }}>
-            {dataset &&
-              <WidgetEditor
-                dataset={dataset.id}
-                mode="dataset"
-                showSaveButton={!!(user && user.id)}
-                showNotLoggedInText
-              />
-            }
+            <WidgetEditorModal />
+            <WidgetEditorTooltip />
+            <WidgetEditorIcons />
+
+            <WidgetEditor
+              datasetId={dataset.id}
+            />
           </MediaQuery>
 
           {/* METADATA */}
@@ -589,63 +592,63 @@ class ExploreDetail extends Page {
               <div className="row">
                 <div className="column small-12 medium-7">
 
-                  {metadataInfo && metadataInfo.technical_title ? (
+                  {metadataInfo && metadataInfo.technical_title &&
                     <div className="l-section-mod">
                       <h3>Formal name</h3>
                       <p>{metadataInfo.technical_title}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {functions ? (
+                  {functions &&
                     <div className="dataset-info-description">
                       <h3>Description</h3>
                       {formattedDescription}
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.geographic_coverage ? (
+                  {metadataInfo && metadataInfo.geographic_coverage &&
                     <div className="l-section-mod">
                       <h3>Geographic coverage</h3>
                       <p>{metadataInfo.geographic_coverage}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {dataset && dataset.attributes && dataset.attributes.type ? (
+                  {dataset && dataset.attributes && dataset.attributes.type &&
                     <div className="l-section-mod">
                       <h3>Data type</h3>
                       <p>{dataset.attributes.type}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.spatial_resolution ? (
+                  {metadataInfo && metadataInfo.spatial_resolution &&
                     <div className="l-section-mod">
                       <h3>Spatial resolution</h3>
                       <p>{metadataInfo.spatial_resolution}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.date_of_content ? (
+                  {metadataInfo && metadataInfo.date_of_content &&
                     <div className="l-section-mod">
                       <h3>Date of content</h3>
                       <p>{metadataInfo.date_of_content}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.frequency_of_updates ? (
+                  {metadataInfo && metadataInfo.frequency_of_updates &&
                     <div className="l-section-mod">
                       <h3>Frequency of updates</h3>
                       <p>{metadataInfo.frequency_of_updates}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {cautions ? (
+                  {cautions &&
                     <div className="l-section-mod">
                       <h3>Cautions</h3>
                       <p>{formattedCautions}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.license ? (
+                  {metadataInfo && metadataInfo.license &&
                     <div className="l-section-mod">
                       <h3>License</h3>
                       <p>
@@ -657,25 +660,25 @@ class ExploreDetail extends Page {
                         }
                       </p>
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.summary_of_license ? (
+                  {metadataInfo && metadataInfo.summary_of_license &&
                     <div className="l-section-mod">
                       <h3>Summary of license</h3>
                       <p>{metadataInfo.summary_of_license}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.link_to_license ? (
+                  {metadataInfo && metadataInfo.link_to_license &&
                     <div className="l-section-mod">
                       <h3>Link to full license</h3>
                       <a href={metadataInfo.link_to_license} target="_blank">
                         {metadataInfo.link_to_license}
                       </a>
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.sources ? (
+                  {metadataInfo && metadataInfo.sources &&
                     <div className="l-section-mod">
                       <h3>Sources</h3>
                       {metadataInfo.sources.map(source => (
@@ -688,28 +691,28 @@ class ExploreDetail extends Page {
                       )
                       }
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.citation ? (
+                  {metadataInfo && metadataInfo.citation &&
                     <div className="l-section-mod">
                       <h3>Citation</h3>
                       <p>{metadataInfo && metadataInfo.citation}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataAttributes && metadataAttributes.language ? (
+                  {metadataAttributes && metadataAttributes.language &&
                     <div className="l-section-mod">
                       <h3>Published language</h3>
                       <p>{metadataAttributes.language}</p>
                     </div>
-                  ) : null}
+                  }
 
-                  {metadataInfo && metadataInfo.language && metadataInfo.language.toLowerCase() !== 'en' ? (
+                  {metadataInfo && metadataInfo.language && metadataInfo.language.toLowerCase() !== 'en' &&
                     <div className="l-section-mod">
                       <h3>Translated title</h3>
                       <p>{metadataInfo && metadataInfo.translated_title}</p>
                     </div>
-                  ) : null}
+                  }
                 </div>
               </div>
 
@@ -815,19 +818,6 @@ ExploreDetail.propTypes = {
   resetDataset: PropTypes.func.isRequired,
   toggleModal: PropTypes.func.isRequired,
   setModalOptions: PropTypes.func.isRequired,
-  setFilters: PropTypes.func.isRequired,
-  setSize: PropTypes.func.isRequired,
-  setColor: PropTypes.func.isRequired,
-  setCategory: PropTypes.func.isRequired,
-  setValue: PropTypes.func.isRequired,
-  setOrderBy: PropTypes.func.isRequired,
-  setAggregateFunction: PropTypes.func.isRequired,
-  setLimit: PropTypes.func.isRequired,
-  setChartType: PropTypes.func.isRequired,
-  setVisualizationType: PropTypes.func.isRequired,
-  setBand: PropTypes.func.isRequired,
-  setLayer: PropTypes.func.isRequired,
-  setTitle: PropTypes.func.isRequired,
   setTopicsTree: PropTypes.func.isRequired,
   toggleLayerGroup: PropTypes.func.isRequired
 };
@@ -848,27 +838,6 @@ const mapDispatchToProps = dispatch => ({
   },
   toggleModal: (open) => { dispatch(toggleModal(open)); },
   setModalOptions: (options) => { dispatch(setModalOptions(options)); },
-  setFilters: filter => dispatch(setFilters(filter)),
-  setColor: color => dispatch(setColor(color)),
-  setSize: size => dispatch(setSize(size)),
-  setCategory: category => dispatch(setCategory(category)),
-  setValue: value => dispatch(setValue(value)),
-  setOrderBy: value => dispatch(setOrderBy(value)),
-  setAggregateFunction: value => dispatch(setAggregateFunction(value)),
-  setLimit: value => dispatch(setLimit(value)),
-  setChartType: value => dispatch(setChartType(value)),
-  setVisualizationType: vis => dispatch(setVisualizationType(vis)),
-  setBand: band => dispatch(setBand(band)),
-  setLayer: (layerId) => {
-    new LayersService()
-      .fetchData({ id: layerId })
-      .then(layer => dispatch(setLayer(layer)))
-      .catch((err) => {
-        console.error(err);
-        toastr.error('Error', 'Unable to load the layer of the widget.');
-      });
-  },
-  setTitle: title => dispatch(setTitle(title)),
   setTopicsTree: tree => dispatch(setTopicsTree(tree)),
   toggleLayerGroup: (datasetID, addLayer) => dispatch(toggleLayerGroup(datasetID, addLayer)),
   toggleFavourite: options => dispatch(toggleFavourite(options))

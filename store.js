@@ -12,6 +12,7 @@ import * as dashboardDetail from 'components/dashboards/detail/dashboard-detail'
 import * as dashboardThumbnailList from 'components/dashboards/thumbnail-list/dashboard-thumbnail-list';
 import * as widgetBlockModule from 'components/dashboards/wysiwyg/widget-block/widget-block';
 import * as widgetBlockEditionModule from 'components/dashboards/wysiwyg/widget-block-edition/widget-block-edition';
+import { reducers as widgetEditorReducers, setConfig } from 'widget-editor';
 
 if (process.env.NODE_ENV === 'production') {
   initOpbeat({
@@ -23,6 +24,7 @@ if (process.env.NODE_ENV === 'production') {
 // REDUCERS
 const reducer = combineReducers({
   ...reducers,
+  ...widgetEditorReducers,
   search: handleModule(search),
 
   // Dashboards
@@ -41,3 +43,12 @@ export const initStore = (initialState = {}) => createStore(
     applyMiddleware(thunk, createOpbeatMiddleware())
   )
 );
+
+// Change the configuration according to your needs
+setConfig({
+  url: process.env.WRI_API_URL,
+  env: process.env.API_ENV,
+  applications: process.env.APPLICATIONS,
+  authUrl: process.env.CALLBACK_URL,
+  assetsPath: '/static/images/'
+});

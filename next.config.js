@@ -4,6 +4,8 @@ const path = require('path');
 const glob = require('glob');
 const webpack = require('webpack');
 
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 module.exports = {
   webpack: (config) => {
     config.module.rules.push(
@@ -60,7 +62,13 @@ module.exports = {
         'process.env.BING_MAPS_API_KEY': JSON.stringify(process.env.BING_MAPS_API_KEY),
         'process.env.API_ENV': JSON.stringify(process.env.API_ENV),
         'process.env.GOOGLE_ANALYTICS': JSON.stringify(process.env.GOOGLE_ANALYTICS)
-      })
+      }),
+      new CopyWebpackPlugin([
+        {
+          from: 'node_modules/widget-editor/dist/images',
+          to: 'static/images/'
+        }
+      ])
     );
 
     return config;
