@@ -49,7 +49,7 @@ class MyRWWidgetsStarred extends React.Component {
             return Object.assign({}, elem.attributes.resource, { favouriteId });
           }),
           starredWidgetsLoaded: true
-        });
+        }).filter(f => f.attributes.application.includes(process.env.APPLICATIONS));
       }).catch(err => toastr.error('Error', err));
   }
 
@@ -63,6 +63,7 @@ class MyRWWidgetsStarred extends React.Component {
 
   render() {
     const { starredWidgets, starredWidgetsLoaded } = this.state;
+
     return (
       <div className="c-myrw-widgets-starred">
         <div className="row">
