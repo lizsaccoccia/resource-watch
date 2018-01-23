@@ -12,7 +12,7 @@
       width: 100%;
     }
 
-    .vega-preview {
+    .preview-container {
       display: flex;
       flex-direction: column;
       max-width: 50%;
@@ -26,6 +26,11 @@
         height: 100%;
         overflow: auto;
         border: solid 1px $light-grey;
+      }
+
+      .map-container {
+        position: relative;
+        min-height: 400px;
       }
 
       .actions {

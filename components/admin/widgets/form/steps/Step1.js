@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import { toastr } from 'react-redux-toastr';
+import WidgetEditor from 'widget-editor';
 
 // Constants
 import { FORM_ELEMENTS, CONFIG_TEMPLATE, CONFIG_TEMPLATE_OPTIONS } from 'components/admin/widgets/form/constants';
@@ -17,11 +18,22 @@ import Checkbox from 'components/form/Checkbox';
 import SwitchOptions from 'components/ui/SwitchOptions';
 import VegaChart from 'components/widgets/charts/VegaChart';
 import Spinner from 'components/ui/Spinner';
-
-import WidgetEditor from 'widget-editor';
+import Map from 'components/ui/map/Map';
+import Legend from 'components/ui/Legend';
 
 // Utils
 import ChartTheme from 'utils/widgets/theme';
+import LayerManager from 'utils/layers/LayerManager';
+
+// Constants
+const MAP_CONFIG = {
+  zoom: 3,
+  latLng: {
+    lat: 0,
+    lng: 0
+  },
+  zoomControl: false
+};
 
 class Step1 extends React.Component {
   constructor(props) {
@@ -30,7 +42,8 @@ class Step1 extends React.Component {
     this.state = {
       id: props.id,
       form: props.form,
-      loadingVegaChart: false
+      loadingVegaChart: false,
+      layerGroups: []
     };
 
     // ------------------- BINDINGS ---------------------------
@@ -39,8 +52,35 @@ class Step1 extends React.Component {
     this.refreshWidgetPreview = this.refreshWidgetPreview.bind(this);
   }
 
+  componentDidMount() {
+    this.setLayerGroups();
+  }
+
   componentWillReceiveProps(nextProps) {
     this.setState({ form: nextProps.form });
+  }
+
+  setLayerGroups() {
+    const { form } = this.props;
+    console.log('form', form);
+    const layerGroups = [{
+      dataset: form.dataset,
+      visible: true,
+      layers: [{
+        active: true,
+        application: form.application,
+        layerConfig: form.layerConfig || {},
+        interactionConfig: form.interactionConfig,
+        legendConfig: form.legendConfig || {},
+        id: form.widgetConfig.layer_id,
+        name: form.name,
+        provider: form.provider,
+        slug: form.slug,
+        iso: form.iso,
+        description: form.description
+      }]
+    }];
+    this.setState({ layerGroups });
   }
 
   /**
@@ -74,11 +114,19 @@ class Step1 extends React.Component {
   }
 
   refreshWidgetPreview() {
-    this.forceChartUpdate();
+    const isMap = this.state.form.widgetConfig.type === 'map';
+
+    if (isMap) {
+      this.forceChartUpdate();
+    } else {
+      const layerGroups = this.state.layerGroups;
+      layerGroups[0].layers[0].id = this.state.form.widgetConfig.layer_id;
+      this.setState({ layerGroups });
+    }
   }
 
   render() {
-    const { id, loadingVegaChart } = this.state;
+    const { id, loadingVegaChart, layerGroups } = this.state;
     const { showEditor } = this.props;
 
     // Reset FORM_ELEMENTS
@@ -87,6 +135,10 @@ class Step1 extends React.Component {
     const editorFieldContainerClass = classnames({
       '-expanded': this.props.mode === 'editor'
     });
+
+    const isMap = this.state.form.widgetConfig.type === 'map';
+
+    console.log('layerGroups', layerGroups);
 
     return (
       <fieldset className="c-field-container">
@@ -278,17 +330,39 @@ class Step1 extends React.Component {
                 >
                   {Code}
                 </Field>
-                <div className="vega-preview c-field">
+                <div className="preview-container c-field">
                   <h5>Widget preview</h5>
                   <Spinner isLoading={loadingVegaChart} className="-light -relative" />
-                  <VegaChart
-                    data={this.state.form.widgetConfig}
-                    theme={ChartTheme()}
-                    showLegend
-                    reloadOnResize
-                    toggleLoading={this.triggerToggleLoadingVegaChart}
-                    getForceUpdate={(func) => { this.forceChartUpdate = func; }}
-                  />
+                  {!isMap &&
+                    <VegaChart
+                      data={this.state.form.widgetConfig}
+                      theme={ChartTheme()}
+                      showLegend
+                      reloadOnResize
+                      toggleLoading={this.triggerToggleLoadingVegaChart}
+                      getForceUpdate={(func) => { this.forceChartUpdate = func; }}
+                    />
+                  }
+                  {isMap &&
+                    <div className="map-container">
+                      <Map
+                        LayerManager={LayerManager}
+                        mapConfig={MAP_CONFIG}
+                        layerGroups={layerGroups}
+                        setMapInstance={(map) => { this.map = map; }}
+                      />
+                      {layerGroups.length > 0 &&
+                        <Legend
+                          layerGroups={this.state.layerGroups}
+                          className={{ color: '-dark' }}
+                          toggleLayerGroupVisibility={() => {}}
+                          setLayerGroupsOrder={() => {}}
+                          setLayerGroupActiveLayer={() => {}}
+                          readonly
+                        />
+                      }
+                    </div>
+                  }
                   <div className="actions">
                     <button
                       type="button"
@@ -304,7 +378,7 @@ class Step1 extends React.Component {
 
           </fieldset>
         }
-        {!showEditor && this.state.form.dataset &&
+        {!showEditor && this.state.form.dataset && !isMap &&
           <div>
             <Spinner isLoading={loadingVegaChart} className="-light -relative" />
             <VegaChart
