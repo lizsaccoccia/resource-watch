@@ -10,7 +10,6 @@ import WidgetList from 'components/widgets/list/WidgetList';
 
 export default function WidgetBlockEdition({ data, onChangeTab, onSelectWidget,
   onChangePage, onChangeSearch }) {
-  console.log('data', data);
   return (
     <div className="c-dashboard-widget-edition">
       <div className="l-page">
