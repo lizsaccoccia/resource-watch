@@ -9321,10 +9321,6 @@ react-attr-converter@^0.3.1:
     rollup-plugin-node-resolve "^3.0.0"
     uuid "^3.1.0"
 
-react-custom-scroll@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/react-custom-scroll/-/react-custom-scroll-2.0.2.tgz#553417bb88c436d6976d02a43d6f0ddf86f6e0f4"
-
 react-deep-force-update@^2.0.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/react-deep-force-update/-/react-deep-force-update-2.1.1.tgz#8ea4263cd6455a050b37445b3f08fd839d86e909"
