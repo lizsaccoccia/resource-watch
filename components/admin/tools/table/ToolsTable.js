@@ -137,10 +137,10 @@ ToolsTable.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  loading: state.tools.loading,
-  tools: state.tools.list,
+  loading: state.tools.tools.loading,
+  tools: state.tools.tools.list,
   filteredTools: getFilteredTools(state),
-  error: state.tools.error
+  error: state.tools.tools.error
 });
 const mapDispatchToProps = dispatch => ({
   getTools: () => dispatch(getTools()),
