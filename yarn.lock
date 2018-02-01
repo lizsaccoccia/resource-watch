@@ -9782,12 +9782,6 @@ react-upload-file@2.0.0-beta.6:
   dependencies:
     react "^15.4.1"
 
-react-vega@2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/react-vega/-/react-vega-2.3.1.tgz#4a44c35fd2867da82155a224c9b8571e6654451e"
-  dependencies:
-    vega "^2.6.1"
-
 react@15.6.1:
   version "15.6.1"
   resolved "https://registry.yarnpkg.com/react/-/react-15.6.1.tgz#baa8434ec6780bde997cdc380b79cd33b96393df"
@@ -11838,24 +11832,6 @@ vega-scenegraph@^1.0.16:
 vega@2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/vega/-/vega-2.6.0.tgz#3a85421e2beb7e8cf2304a46b0516784bb53ee77"
-  dependencies:
-    d3 "^3.5.9"
-    d3-cloud "^1.2.1"
-    d3-geo-projection "^0.2.15"
-    datalib "^1.7.1"
-    topojson "^1.6.19"
-    vega-dataflow "^1.4.0"
-    vega-event-selector "^1.0.0"
-    vega-expression "^1.2.0"
-    vega-logging "^1.0.1"
-    vega-scenegraph "^1.0.16"
-    yargs "^3.30.0"
-  optionalDependencies:
-    canvas "^1.3.4"
-
-vega@^2.6.1:
-  version "2.6.5"
-  resolved "https://registry.yarnpkg.com/vega/-/vega-2.6.5.tgz#2378d4672934220be2971dc0871a987e542cb5be"
   dependencies:
     d3 "^3.5.9"
     d3-cloud "^1.2.1"
