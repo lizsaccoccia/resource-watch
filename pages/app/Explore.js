@@ -58,8 +58,6 @@ import Spinner from 'components/ui/Spinner';
 import SearchInput from 'components/ui/SearchInput';
 import ExploreDatasetFilters from 'components/app/explore/explore-dataset-filters/explore-dataset-filters';
 
-// import Legend from 'components/ui/legend';
-
 import { Legend, LegendItemToolbar, LegendItemTypes } from 'wri-api-components';
 
 // Layout
@@ -232,15 +230,6 @@ class Explore extends Page {
   }
 
   /**
-   * Event handler executed when the user removes a layer
-   * group from the map
-   * @param {LayerGroup} layerGroup
-   */
-  onRemoveLayer(layerGroup) {
-    this.props.toggleLayerGroup(layerGroup.dataset, false);
-  }
-
-  /**
    * Event handler executed when the user re-orders the
    * layer groups
    * @param {string[]} datasets - List of datasets IDs
@@ -257,6 +246,15 @@ class Explore extends Page {
    */
   onChangeLayer(layerGroup) {
     this.props.setLayerGroupActiveLayer(layerGroup.dataset, layerGroup.id);
+  }
+
+  /**
+   * Event handler executed when the user removes a layer
+   * group from the map
+   * @param {LayerGroup} layerGroup
+   */
+  onRemoveLayer(layerGroup) {
+    this.props.toggleLayerGroup(layerGroup.dataset, false);
   }
 
   setMapParams(params) {
@@ -448,21 +446,22 @@ class Explore extends Page {
                 </MapControls>
 
                 {this.props.layerGroups && this.props.layerGroups.length &&
-                  <Legend
-                    maxWidth={300}
-                    maxHeight={300}
-                    layerGroups={this.props.layerGroups}
-                    // Item
-                    LegendItemToolbar={<LegendItemToolbar />}
-                    LegendItemTypes={<LegendItemTypes />}
-                    // Actions
-                    onChangeInfo={this.onChangeInfo}
-                    onChangeOpacity={this.onChangeOpacity}
-                    onChangeVisibility={this.onChangeVisibility}
-                    onChangeLayer={this.onChangeLayer}
-                    onChangeOrder={this.onChangeOrder}
-                    onRemoveLayer={this.onRemoveLayer}
-                  />
+                  <div className="c-legend-map">
+                    <Legend
+                      maxHeight={300}
+                      layerGroups={this.props.layerGroups}
+                      // Item
+                      LegendItemToolbar={<LegendItemToolbar />}
+                      LegendItemTypes={<LegendItemTypes />}
+                      // Actions
+                      onChangeInfo={this.onChangeInfo}
+                      onChangeOpacity={this.onChangeOpacity}
+                      onChangeVisibility={this.onChangeVisibility}
+                      onChangeLayer={this.onChangeLayer}
+                      onChangeOrder={this.onChangeOrder}
+                      onRemoveLayer={this.onRemoveLayer}
+                    />
+                  </div>
                 }
               </div>
             </MediaQuery>
