@@ -58,7 +58,9 @@ import Spinner from 'components/ui/Spinner';
 import SearchInput from 'components/ui/SearchInput';
 import ExploreDatasetFilters from 'components/app/explore/explore-dataset-filters/explore-dataset-filters';
 
-import Legend from 'components/ui/legend';
+// import Legend from 'components/ui/legend';
+
+import { Legend, LegendItemToolbar, LegendItemTypes } from 'wri-api-components';
 
 // Layout
 import Page from 'components/layout/page';
@@ -447,7 +449,14 @@ class Explore extends Page {
 
                 {this.props.layerGroups && this.props.layerGroups.length &&
                   <Legend
+                    maxWidth={300}
+                    maxHeight={300}
                     layerGroups={this.props.layerGroups}
+                    // Item
+                    LegendItemToolbar={<LegendItemToolbar />}
+                    LegendItemTypes={<LegendItemTypes />}
+                    // Actions
+                    onChangeInfo={this.onChangeInfo}
                     onChangeOpacity={this.onChangeOpacity}
                     onChangeVisibility={this.onChangeVisibility}
                     onChangeLayer={this.onChangeLayer}
