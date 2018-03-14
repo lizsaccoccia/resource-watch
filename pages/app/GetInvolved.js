@@ -15,11 +15,11 @@ import Layout from 'layout/layout/layout-app';
 const cards = [
   {
     id: 'insights',
-    title: 'Submit a story',
-    intro: ['Tell a story with data. Share content with the world and inspire action.'],
+    title: 'Suggest a story',
+    intro: ['Have you uncovered an interesting connection in the data we should tell a story about?'],
     buttons: [
       {
-        text: 'Submit a story',
+        text: 'Suggest a story',
         route: 'get_involved_detail',
         params: { id: 'submit-an-insight' },
         className: '-primary -alt'
