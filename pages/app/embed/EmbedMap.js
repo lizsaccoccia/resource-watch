@@ -78,7 +78,7 @@ class EmbedMap extends Page {
 
     const { modalOpened } = this.state;
 
-    const { disableZoom, legendExpanded, hideTimeline } = url.query;
+    const { disableZoom, legendExpanded } = url.query;
 
     const favouriteIcon = favourited ? 'star-full' : 'star-empty';
 

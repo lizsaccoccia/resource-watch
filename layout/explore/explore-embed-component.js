@@ -8,6 +8,8 @@ import ExploreMap from 'layout/explore/explore-map';
 
 class Explore extends React.Component {
   render() {
+    const { disableZoom, legendExpanded } = this.props.url.query;
+
     return (
       <Layout
         title="Explore"
@@ -17,7 +19,11 @@ class Explore extends React.Component {
       >
         <div className="c-embed-widget">
           {/* Desktop map */}
-          <ExploreMap embed />
+          <ExploreMap
+            embed
+            disableZoom={disableZoom}
+            legendExpanded={legendExpanded}
+          />
         </div>
       </Layout>
     );

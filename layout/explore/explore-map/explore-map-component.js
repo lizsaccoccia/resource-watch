@@ -25,6 +25,7 @@ import LayerInfoModal from 'components/modal/layer-info-modal';
 
 // Utils
 import LayerManager from 'utils/layers/LayerManager';
+import { paramIsTrue } from 'utils/utils';
 
 class ExploreMapComponent extends React.Component {
   static propTypes = {
@@ -39,6 +40,8 @@ class ExploreMapComponent extends React.Component {
     layerGroupsInteraction: PropTypes.object,
     layerGroupsInteractionSelected: PropTypes.string,
     layerGroupsInteractionLatLng: PropTypes.object,
+    legendExpanded: PropTypes.bool,
+    disableZoom: PropTypes.bool,
 
     // Actions
     setMapZoom: PropTypes.func,
@@ -104,14 +107,16 @@ class ExploreMapComponent extends React.Component {
       layerGroups,
       layerGroupsInteraction,
       layerGroupsInteractionSelected,
-      layerGroupsInteractionLatLng
+      layerGroupsInteractionLatLng,
+      disableZoom,
+      legendExpanded
     } = this.props;
 
     return (
 
       <div className="l-map -relative">
         <Map
-          mapConfig={{ zoom, latLng }}
+          mapConfig={{ zoom, latLng, zoomControl: !paramIsTrue(disableZoom) }}
           disableScrollZoom={false}
 
           // layerManager
@@ -147,6 +152,7 @@ class ExploreMapComponent extends React.Component {
         <div className="c-legend-map">
           <Legend
             maxHeight={300}
+            expanded={paramIsTrue(legendExpanded)}
             layerGroups={layerGroups}
             // List item
             LegendItemToolbar={
