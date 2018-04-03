@@ -142,6 +142,8 @@ class GlobeCesiumComponent extends PureComponent {
     if (this.props.markers) {
       this.createShapes(this.props.markers);
     }
+
+    this.flyToPosition('north_pole');
   }
 
   componentWillReceiveProps(nextProps) {
@@ -188,6 +190,11 @@ class GlobeCesiumComponent extends PureComponent {
         z: camera.position.z * scalar
       };
       this.viewer.camera.flyTo({ destination: newPosition, duration: 1.5 });
+    }
+
+    // ----------- position updates -----------
+    if (this.props.position !== nextProps.position) {
+      this.flyToPosition(nextProps.position);
     }
   }
 
@@ -352,6 +359,21 @@ class GlobeCesiumComponent extends PureComponent {
     return shapes;
   }
 
+  flyToPosition(position, height = 20000000, duration = 0) {
+    if (position === 'north_pole') {
+      this.viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(0, 90, height),
+        duration
+      });
+    } else if (position === 'south_pole') {
+      this.viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(0, 90, height),
+        duration
+      });
+    }
+  }
+
+
   addAdditionalLayerOption(name, imageryProvider, alpha, show) {
     const layer = this.imageryLayers.addImageryProvider(imageryProvider);
     layer.alpha = Cesium.defaultValue(alpha, 0.5);
@@ -512,6 +534,7 @@ GlobeCesiumComponent.propTypes = {
   zoom: PropTypes.number,
   markers: PropTypes.array,
   viewerOptions: PropTypes.object,
+  position: PropTypes.string,
 
   // Store
   setShapesCreated: PropTypes.func.isRequired,

@@ -13,7 +13,7 @@ export const LAYERS_PLANET_PULSE = [
         '3d': false,
         descriptionPulse:
           <div className="description">
-            High confidence fires in the past 7 days affecting <LayerPill layerId="84229e01-4e61-4c08-a7dd-efb7259dd85d" label="Population" />
+            High confidence fires in the past 7 days affecting <LayerPill layerId="84229e01-4e61-4c08-a7dd-efb7259dd85d" label="Population" /> and <LayerPill layerId="dabcca67-037c-4d11-afc4-69559edec4dc" label="Protected areas" />
           </div>,
         contextLayers: ['84229e01-4e61-4c08-a7dd-efb7259dd85d'],
         contextLayersOnTop: false,
@@ -21,7 +21,8 @@ export const LAYERS_PLANET_PULSE = [
         basemap: {
           name: 'sentinel',
           url: 'https://api.mapbox.com/styles/v1/resourcewatch/cj1erey1c00ia2rqmvh6htv3x/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicmVzb3VyY2V3YXRjaCIsImEiOiJjajFlcXZhNzcwMDBqMzNzMTQ0bDN6Y3U4In0.FRcIP_yusVaAy0mwAX1B8w'
-        }
+        },
+        rotatableGlobe: true
       },
       {
         label: 'Brazilian Amazon Deforestation Alerts',

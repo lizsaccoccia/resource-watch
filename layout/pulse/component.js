@@ -4,7 +4,6 @@ import debounce from 'lodash/debounce';
 
 // Redux
 import { connect } from 'react-redux';
-import { initStore } from 'store';
 import { getLayers, getLayerPoints, resetLayerPoints } from 'layout/pulse/actions';
 import { toggleActiveLayer } from 'layout/pulse/layer-menu-dropdown/actions';
 import { toggleTooltip } from 'redactions/tooltip';
@@ -243,6 +242,7 @@ class Pulse extends Page {
 
     // Check if there's a custom basemap
     const basemap = layerActive && layerActive.basemap;
+    const rotatableGlobe = layerActive && layerActive.rotatableGlobe;
 
     return (
       <Layout
@@ -274,6 +274,7 @@ class Pulse extends Page {
             onMouseDown={this.handleCesiumMouseDown}
             onMoveStart={this.handleCesiumMoveStart}
             onShapesCreated={this.handleShapesCreated}
+            position="north_pole"
           />
           <ZoomControl
             onZoomIn={this.triggerZoomIn}
