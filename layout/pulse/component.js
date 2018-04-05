@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
+import renderHTML from 'react-render-html';
 
 // Redux
 import { connect } from 'react-redux';
@@ -19,11 +20,14 @@ import { substitution } from 'utils/utils';
 
 // Utils
 import { logEvent } from 'utils/analytics';
+import { isIE } from 'utils/browser';
 
 // Components
 import LayerContainer from 'layout/pulse/layer-container';
 import LayerMenu from 'layout/pulse/layer-menu';
 import LayerCard from 'layout/pulse/layer-card';
+import Modal from 'components/modal/modal-component';
+import SubmitModalComponent from 'components/modal/submit-modal';
 import Spinner from 'components/ui/Spinner';
 import ZoomControl from 'components/ui/ZoomControl';
 import GlobeTooltip from 'layout/pulse/globe-tooltip';
@@ -40,7 +44,8 @@ class Pulse extends Page {
     this.state = {
       selectedMarker: null,
       interactionConfig: null,
-      zoom: 0
+      zoom: 0,
+      showIEPopup: false
     };
     this.layerGlobeManager = new LayerGlobeManager();
 
@@ -105,6 +110,11 @@ class Pulse extends Page {
     this.props.toggleActiveLayer({});
     this.props.resetLayerPoints();
     this.mounted = false;
+    if (isIE()) {
+      this.setState({
+        showIEPopup: true
+      });
+    }
   }
 
   /**
@@ -239,7 +249,7 @@ class Pulse extends Page {
     } = this.props;
     const { layerActive } = layerMenuPulse;
     // const { layerPoints } = pulse;
-    const { zoom } = this.state;
+    const { zoom, showIEPopup } = this.state;
     // const shapes = this.getShapes(layerPoints, layerActive && layerActive.markerType);
 
     // Check if there's a custom basemap
@@ -252,6 +262,18 @@ class Pulse extends Page {
         url={url}
         user={this.props.user}
       >
+        {showIEPopup &&
+          <Modal
+            isOpen
+            className="-medium"
+            onRequestClose={() => this.setState({ showIEPopup: false })}
+          >
+            <SubmitModalComponent
+              header="Monitoring the Planets Pulse"
+              text={renderHTML('Resource Watch provides trusted and timely data for a more sustainable future. Please visit this link in <a href="https://www.google.com/chrome/" target="_blank">Chrome</a> or <a href="https://www.mozilla.org/en-US/firefox/new/" target="_blank">Firefox</a> to see the latest data on the world today.')}
+            />
+          </Modal>
+        }
         <div
           className="p-pulse l-map -dark"
         >
