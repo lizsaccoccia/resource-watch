@@ -9,7 +9,7 @@ import { getStaticData } from 'redactions/static_pages';
 import Page from 'layout/page';
 import Layout from 'layout/layout/layout-app';
 
-class Policy extends Page {
+class AttributionRequirements extends Page {
   static async getInitialProps(context) {
     const props = await super.getInitialProps(context);
 
@@ -83,4 +83,4 @@ const mapDispatchToProps = {
   getStaticData
 };
 
-export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(Policy);
+export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(AttributionRequirements);
